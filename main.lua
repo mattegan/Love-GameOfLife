@@ -3,6 +3,7 @@ li = love.image
 lw = love.window
 
 currentIteration = {}
+currentIterationImage = {}
 calculationCanvas = {}
 calculationShader = {}
 
@@ -13,7 +14,7 @@ dataHeight = 0
 sample = 1
 
 running = false;
-iterationsPerSecond = 60
+iterationsPerSecond = 200
 time = 0;
 
 function love.load(a)
@@ -35,22 +36,8 @@ function love.load(a)
 
     --  create an image to store the current iteration
     currentIteration = li.newImageData(windowWidth / sample, windowHeight / sample)
-
-    --  testing
-    -- for i = 0, 39 do
-    --     currentIteration:setPixel(i, 20, 255, 255, 255, 255)
-    --     -- currentIteration:setPixel(39-i, i, 255, 255, 255, 255)
-    -- end
-
-    --  testing, create a + around 20, 20
-    currentIteration:setPixel(20, 19, 255, 255, 255, 255)
-    currentIteration:setPixel(20, 20, 255, 255, 255, 255)
-    currentIteration:setPixel(20, 21, 255, 255, 255, 255)
-    --
-    currentIteration:setPixel(29, 30, 255, 255, 255, 255)
-    currentIteration:setPixel(30, 30, 255, 255, 255, 255)
-    currentIteration:setPixel(31, 30, 255, 255, 255, 255)
-
+    currentIterationImage = lg.newImage(currentIteration)
+    currentIterationImage:setFilter("linear", "nearest")
 end
 
 function love.update(dt)
@@ -62,10 +49,16 @@ function love.update(dt)
         local imageY = math.floor(y / sample);
 
         if love.mouse.isDown(1) then
-            currentIteration:setPixel(imageX, imageY, 255, 255, 255, 255)
+            if love.keyboard.isDown('g') then
+                makeGlider(imageX, imageY)
+            else
+                currentIteration:setPixel(imageX, imageY, 255, 255, 255, 255)
+            end
         else
             currentIteration:setPixel(imageX, imageY, 0, 0, 0, 255)
         end
+
+        currentIterationImage:refresh()
     end
 
     if running then
@@ -80,9 +73,7 @@ function love.update(dt)
 end
 
 function love.draw()
-    local image = lg.newImage(currentIteration)
-    image:setFilter("nearest", "nearest")
-    lg.draw(image, 0, 0, 0, sample)
+    lg.draw(currentIterationImage, 0, 0, 0, sample)
 end
 
 function love.keypressed(key, scancode, isrepeat)
@@ -100,24 +91,38 @@ function love.keypressed(key, scancode, isrepeat)
     end
 
     if key == 'up' then
-        iterationsPerSecond = iterationsPerSecond + 0.5
+        iterationsPerSecond = iterationsPerSecond + 5
     end
 
     if key == 'down' then
-        iterationsPerSecond = iterationsPerSecond - 0.5
+        iterationsPerSecond = iterationsPerSecond - 5
     end
 
     if key == 'r' then
         for x = 0, (dataWidth - 1) do
             for y = 0, (dataHeight - 1) do
-                local alive = love.math.random(0, 2)
-                if alive > 1 then
+                local alive = love.math.random(0, 4)
+                if alive < 1 then
                     currentIteration:setPixel(x, y, 255, 255, 255, 255)
                 else
                     currentIteration:setPixel(x, y, 0, 0, 0, 255)
                 end
             end
         end
+        currentIterationImage:refresh()
+    end
+
+    if key == 'c' then
+        clear()
+    end
+
+    if key == 'h' then
+        for x = 1, dataWidth - 4, 5 do
+            for y = 1, dataHeight - 4, 5 do
+                makeGlider(x, y)
+            end
+        end
+        currentIterationImage:refresh()
     end
 
 end
@@ -127,12 +132,28 @@ function iterate()
     --  calculate the next iteration of the grid
     lg.setCanvas(calculationCanvas)
     lg.setShader(calculationShader)
-    local currentImage = lg.newImage(currentIteration)
-    currentImage:setFilter("nearest", "nearest")
-    lg.draw(currentImage)
+    lg.draw(currentIterationImage)
     lg.setShader()
     lg.setCanvas()
 
     --  now, get the next iteration as image data out of the calculationCanvas
     currentIteration = calculationCanvas:newImageData()
+    currentIterationImage = lg.newImage(currentIteration)
+    currentIterationImage:setFilter("linear", "nearest")
+    collectgarbage()
+end
+
+function makeGlider(x, y)
+    currentIteration:setPixel(x, y - 1, 255, 255, 255, 255)
+    currentIteration:setPixel(x + 1, y, 255, 255, 255, 255)
+    currentIteration:setPixel(x - 1, y + 1, 255, 255, 255, 255)
+    currentIteration:setPixel(x, y + 1, 255, 255, 255, 255)
+    currentIteration:setPixel(x + 1, y + 1, 255, 255, 255, 255)
+end
+
+function clear()
+    currentIteration = li.newImageData(windowWidth / sample, windowHeight / sample)
+    currentIterationImage = lg.newImage(currentIteration)
+    currentIterationImage:setFilter("linear", "nearest")
+    collectgarbage()
 end
