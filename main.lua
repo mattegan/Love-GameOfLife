@@ -52,13 +52,13 @@ function love.update(dt)
             if love.keyboard.isDown('g') then
                 makeGlider(imageX, imageY)
             else
-                currentIteration:setPixel(imageX, imageY, 255, 255, 255, 255)
+                currentIteration:setPixel(imageX, imageY, 1, 1, 1, 1)
             end
         else
-            currentIteration:setPixel(imageX, imageY, 0, 0, 0, 255)
+            currentIteration:setPixel(imageX, imageY, 0, 0, 0, 0)
         end
 
-        currentIterationImage:refresh()
+        currentIterationImage:replacePixels(currentIteration)
     end
 
     if running then
@@ -103,13 +103,13 @@ function love.keypressed(key, scancode, isrepeat)
             for y = 0, (dataHeight - 1) do
                 local alive = love.math.random(0, 4)
                 if alive < 1 then
-                    currentIteration:setPixel(x, y, 255, 255, 255, 255)
+                    currentIteration:setPixel(x, y, 1, 1, 1, 1)
                 else
-                    currentIteration:setPixel(x, y, 0, 0, 0, 255)
+                    currentIteration:setPixel(x, y, 0, 0, 0, 1)
                 end
             end
         end
-        currentIterationImage:refresh()
+        currentIterationImage:replacePixels(currentIteration)
     end
 
     if key == 'c' then
@@ -122,7 +122,7 @@ function love.keypressed(key, scancode, isrepeat)
                 makeGlider(x, y)
             end
         end
-        currentIterationImage:refresh()
+        currentIterationImage:replacePixels(currentIteration)
     end
 
 end
@@ -144,11 +144,11 @@ function iterate()
 end
 
 function makeGlider(x, y)
-    currentIteration:setPixel(x, y - 1, 255, 255, 255, 255)
-    currentIteration:setPixel(x + 1, y, 255, 255, 255, 255)
-    currentIteration:setPixel(x - 1, y + 1, 255, 255, 255, 255)
-    currentIteration:setPixel(x, y + 1, 255, 255, 255, 255)
-    currentIteration:setPixel(x + 1, y + 1, 255, 255, 255, 255)
+    currentIteration:setPixel(x, y - 1, 1, 1, 1, 1)
+    currentIteration:setPixel(x + 1, y, 1, 1, 1, 1)
+    currentIteration:setPixel(x - 1, y + 1, 1, 1, 1, 1)
+    currentIteration:setPixel(x, y + 1, 1, 1, 1, 1)
+    currentIteration:setPixel(x + 1, y + 1, 1, 1, 1, 1)
 end
 
 function clear()
