@@ -47,18 +47,19 @@ function love.update(dt)
 
         local imageX = math.floor(x / sample);
         local imageY = math.floor(y / sample);
+        if imageX-1 >= 0 and imageX+1 < windowWidth and imageY-1 >= 0 and imageY+1 < windowHeight then
+           if love.mouse.isDown(1) then
+               if love.keyboard.isDown('g') then
+                   makeGlider(imageX, imageY)
+               else
+                   currentIteration:setPixel(imageX, imageY, 255, 255, 255, 255)
+               end
+           else
+               currentIteration:setPixel(imageX, imageY, 0, 0, 0, 255)
+           end
 
-        if love.mouse.isDown(1) then
-            if love.keyboard.isDown('g') then
-                makeGlider(imageX, imageY)
-            else
-                currentIteration:setPixel(imageX, imageY, 255, 255, 255, 255)
-            end
-        else
-            currentIteration:setPixel(imageX, imageY, 0, 0, 0, 255)
-        end
-
-        currentIterationImage:refresh()
+           currentIterationImage:replacePixels(currentIteration)
+       end
     end
 
     if running then
@@ -109,7 +110,7 @@ function love.keypressed(key, scancode, isrepeat)
                 end
             end
         end
-        currentIterationImage:refresh()
+        currentIterationImage:replacePixels(currentIteration)
     end
 
     if key == 'c' then
@@ -122,7 +123,7 @@ function love.keypressed(key, scancode, isrepeat)
                 makeGlider(x, y)
             end
         end
-        currentIterationImage:refresh()
+        currentIterationImage:replacePixels(currentIteration)
     end
 
 end
